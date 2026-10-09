@@ -404,6 +404,7 @@ JSON messages with a type field `t`. Every incoming message is validated with zo
 | `hello` | `token?` | first message |
 | `watch_table` | `tableId` | subscribe; seated players get their private view |
 | `unwatch_table` | `tableId` | |
+| `take_seat` / `leave_seat` | `tableId` | practice tables only (tournament seats are assigned) |
 | `act` | `tableId, handNo, actionId, type, toAmount?` | `actionId` = client UUID for idempotency; `handNo` stops stale clicks |
 | `pre_action` | `tableId, value: "check_fold" \| "call_any" \| null` | applied when your turn comes |
 | `sit_in` | `tableId` | return from sitting out |
@@ -414,18 +415,18 @@ JSON messages with a type field `t`. Every incoming message is validated with zo
 | `t` | Payload | Notes |
 |-----|---------|-------|
 | `welcome` | `userId?, serverTime` | after `hello` |
-| `table_view` | `TableView` | full view for this viewer, sent after every change |
-| `event` | `GameEvent` | for animations/sounds (deal, bet, pot win) |
-| `your_turn` | `legalActions, deadline, timeBankMs` | |
-| `moved` | `fromTableId, toTableId` | MTT balancing; the client follows automatically |
-| `contest` | `level, nextLevelAt, playersLeft, avgStack, status` | |
-| `busted` | `place` | |
-| `chat` | `ChatMessageView` | |
-| `chat_deleted` | `messageId` | |
+| `table_view` | `ClientTableView` | full view for this viewer, sent after every change: players, hand (with its event log for animations), whose clock is running (`turn.deadline`), and the viewer's legal actions when it's their turn |
+| `moved` | `fromTableId, toTableId` | (M6) MTT balancing; the client follows automatically |
+| `contest` | `level, nextLevelAt, playersLeft, avgStack, status` | (M5) |
+| `busted` | `place` | (M5) |
+| `chat` | `ChatMessageView` | (M8) |
+| `chat_deleted` | `messageId` | (M8) |
 | `error` | `code, message` | |
 | `pong` | – | |
 
 **Full views, not diffs:** a `TableView` is ~1–2 KB, so the server sends the whole view on every change. This removes a class of sync bugs; reconnecting is the same as connecting.
+
+**Practice tables (dev only):** created with `POST /internal/practice-tables`, closed with `POST /internal/tables/:id/close`. Bots fill seats but a practice table only deals while at least one real person is seated.
 
 ### 6.5 Rate limits
 - `act`: max 5 per second per connection; duplicates (`actionId` seen) ignored; wrong `handNo` or not your turn → `error`.

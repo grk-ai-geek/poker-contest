@@ -22,12 +22,14 @@
     "make-admin": "tsx scripts/make-admin.ts",
     "postinstall": "prisma generate",
     "vercel-build": "prisma migrate deploy && next build",
-    "sim": "tsx scripts/sim.ts"
+    "sim": "tsx scripts/sim.ts",
+    "test:integration": "vitest run --config vitest.integration.config.mts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.10.0",
     "@prisma/client": "^7.10.0",
     "bcryptjs": "^3.0.3",
+    "jose": "^6.2.12",
     "next": "16.3.8",
     "next-auth": "^5.0.0-beta.32",
     "nodemailer": "^8.0.11",
@@ -35,6 +37,7 @@
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "server-only": "^0.0.1",
+    "ws": "^8.22.0",
     "zod": "^4.6.5"
   },
   "devDependencies": {
@@ -47,6 +50,7 @@
     "@types/pg": "^8.23.1",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/ws": "^8.18.2",
     "concurrently": "^10.0.5",
     "dotenv": "^18.0.5",
     "eslint": "^9",

@@ -1,5 +1,5 @@
 // Data model for the poker contest site. See design.md §4.
-// All chip amounts are whole numbers (Int). Game models arrive in M3/M5.
+// All chip amounts are whole numbers (Int). Contest models arrive in M5.
 
 generator client {
   provider = "prisma-client"
@@ -16,16 +16,17 @@ enum Role {
 }
 
 model User {
-  id              String    @id @default(cuid())
-  email           String    @unique
+  id              String       @id @default(cuid())
+  email           String       @unique
   emailVerified   DateTime?
   passwordHash    String? // null for Google-only users
-  displayName     String    @unique
+  displayName     String       @unique
   avatarUrl       String?
-  role            Role      @default(USER)
-  isBot           Boolean   @default(false) // dev/test bots only; refused in production
+  role            Role         @default(USER)
+  isBot           Boolean      @default(false) // dev/test bots only; refused in production
   chatBannedUntil DateTime?
-  createdAt       DateTime  @default(now())
+  createdAt       DateTime     @default(now())
+  hands           HandPlayer[]
 }
 
 // Email verification links (sign-up). Token is stored hashed.
@@ -37,4 +38,110 @@ model VerificationToken {
   createdAt DateTime @default(now())
 
   @@index([email])
+}
+
+// ── Game (M3) ───────────────────────────────────────────────────────────────
+
+enum TableStatus {
+  OPEN
+  CLOSED
+}
+
+enum Street {
+  PREFLOP
+  FLOP
+  TURN
+  RIVER
+  SHOWDOWN
+}
+
+enum HandActionType {
+  POST_SB
+  POST_BB
+  POST_ANTE
+  FOLD
+  CHECK
+  CALL
+  BET
+  RAISE
+}
+
+// A table run by the game server. contestId is null for dev practice tables.
+model Table {
+  id              String      @id @default(cuid())
+  contestId       String?
+  number          Int         @default(1)
+  name            String
+  maxSeats        Int
+  status          TableStatus @default(OPEN)
+  level           Json? // practice tables: fixed BlindLevel; tournaments use the contest clock
+  startingStack   Int         @default(10000) // practice tables: stack when taking a seat
+  actionSeconds   Int         @default(20)
+  timeBankSeconds Int         @default(30)
+  handNo          Int         @default(0)
+  snapshot        Json? // TableSnapshot saved at the start and end of every hand (design.md §6.7)
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  hands           Hand[]
+
+  @@index([status])
+  @@index([contestId])
+}
+
+model Hand {
+  id         String       @id @default(cuid())
+  tableId    String
+  contestId  String?
+  handNo     Int
+  sb         Int
+  bb         Int
+  ante       Int
+  buttonSeat Int
+  board      String[]
+  deck       String[] // full shuffled deck: admin audit only, never sent to players
+  totalPot   Int
+  startedAt  DateTime
+  endedAt    DateTime
+  table      Table        @relation(fields: [tableId], references: [id])
+  players    HandPlayer[]
+  actions    HandAction[]
+
+  @@unique([tableId, handNo])
+  @@index([contestId])
+}
+
+model HandPlayer {
+  handId      String
+  userId      String
+  seatNo      Int
+  startStack  Int
+  endStack    Int
+  holeCards   String[] // revealed to others only if shown
+  shown       Boolean
+  vpip        Boolean
+  pfr         Boolean
+  sawShowdown Boolean
+  won         Int
+  hand        Hand     @relation(fields: [handId], references: [id], onDelete: Cascade)
+  user        User     @relation(fields: [userId], references: [id])
+
+  @@id([handId, userId])
+  @@index([userId])
+}
+
+model HandAction {
+  handId   String
+  seq      Int
+  street   Street
+  seatNo   Int
+  userId   String
+  type     HandActionType
+  amount   Int // chips added by this action
+  toAmount Int // player's total bet on this street afterwards
+  allIn    Boolean
+  auto     Boolean // made by the server (timeout or sitting out)
+  at       DateTime
+  hand     Hand           @relation(fields: [handId], references: [id], onDelete: Cascade)
+
+  @@id([handId, seq])
 }

@@ -121,16 +121,16 @@ The most important code. No database, no network: `(state, action) → (newState
 
 ## M3: Game server (WebSocket)
 
-- [ ] Always-on Node process (`src/server`), WebSocket server (`ws`), `/health` endpoint
-- [ ] Auth: the web app issues a short-lived signed token (`/api/game-token`); the server verifies it on connect
-- [ ] Table runtime: one engine instance per table, an action queue (one action at a time per table), server-side action timer + time bank, auto-fold/check on timeout
-- [ ] Message protocol (typed, zod-validated): `join_table`, `action`, `sit_out`, `sit_in` in; `table_state`, `your_cards`, `action_required`, `hand_result`, `error` out
-- [ ] Each client gets only its own `viewFor()` state; never broadcast raw state
-- [ ] Reconnect: on reconnect the client receives the full current view; disconnected players time out normally
-- [ ] Persistence: finished hands saved to `Hand` / `HandAction`; table snapshot saved after each hand so a server restart resumes the table
-- [ ] Rate limit and idempotency for incoming actions (duplicate clicks ignored)
-- [ ] Dev bots (dev/test only): fill seats on a practice table
-- [ ] Tests: protocol validation, a client never receives another player's cards (asserted on every message in an integration test), timeout behaviour, restart recovery
+- [x] Always-on Node process (`src/server`), WebSocket server (`ws`), `/health` endpoint
+- [x] Auth: the web app issues a short-lived signed token (`/api/game-token`); the server verifies it on connect
+- [x] Table runtime: one engine instance per table, an action queue (one action at a time per table), server-side action timer + time bank, auto-fold/check on timeout
+- [x] Message protocol (typed, zod-validated): `join_table`, `action`, `sit_out`, `sit_in` in; `table_state`, `your_cards`, `action_required`, `hand_result`, `error` out
+- [x] Each client gets only its own `viewFor()` state; never broadcast raw state
+- [x] Reconnect: on reconnect the client receives the full current view; disconnected players time out normally
+- [x] Persistence: finished hands saved to `Hand` / `HandAction`; table snapshot saved after each hand so a server restart resumes the table
+- [x] Rate limit and idempotency for incoming actions (duplicate clicks ignored)
+- [x] Dev bots (dev/test only): fill seats on a practice table; practice tables only deal while a real person is seated
+- [x] Tests: protocol validation, a client never receives another player's cards (asserted on every message in an integration test), timeout behaviour, restart recovery (`npm run test:integration`, real DB + WebSocket)
 
 **Done when:** two browser tabs plus bots can play hands on a practice table through the server, and a server restart mid-session resumes correctly.
 
