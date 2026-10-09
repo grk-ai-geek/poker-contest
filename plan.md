@@ -138,16 +138,16 @@ The most important code. No database, no network: `(state, action) → (newState
 
 ## M4: Poker table UI
 
-- [ ] Wireframes for the table (desktop + mobile portrait) **(you review)**
-- [ ] `/table/[id]`: oval table, up to 9 seats, avatars, stacks, dealer button, bets in front of players, pot(s), community cards
-- [ ] Own hole cards; others face-down; showdown reveal with the winning 5 cards highlighted and hand name
-- [ ] Action bar: Fold / Check / Call / Bet / Raise / All-in, bet slider, ½ pot / ¾ pot / pot buttons; only legal actions shown
-- [ ] Turn timer ring + time bank; pre-action checkboxes (check/fold, call any)
-- [ ] Hand log panel; blind level + next level timer
-- [ ] Connection status ("Reconnecting…"), auto-reconnect
-- [ ] Card/chip animations and sounds, with a toggle in settings
-- [ ] Mobile layout (portrait, seats around the edge, action bar at the bottom)
-- [ ] e2e test: a full hand against bots in the browser
+- [x] ~~Wireframes~~ replaced by reviewing the real table (design.md §10.3 layout; desktop + mobile screenshots from the e2e test) **(you review)**
+- [x] `/table/[id]`: oval table, up to 9 seats, avatars, stacks, dealer button, bets in front of players, pot(s), community cards
+- [x] Own hole cards; others face-down; showdown reveal with the winning 5 cards highlighted and hand name
+- [x] Action bar: Fold / Check / Call / Bet / Raise / All-in, bet slider, ½ pot / ¾ pot / pot buttons; only legal actions shown
+- [x] Turn timer ring + time bank; pre-action checkboxes (check/fold, call any)
+- [x] Hand log panel; blind level + next level timer
+- [x] Connection status ("Reconnecting…"), auto-reconnect
+- [x] Card deal-in animation (off with reduced motion) and a "your turn" chime, with a sound toggle on the table
+- [x] Mobile layout (portrait, seats around the edge, action bar at the bottom)
+- [x] e2e test: take a seat on a practice table and play 3 hands against bots, no browser console errors; admin "Start practice table" button
 
 **Done when:** you can play hands in the browser against dev bots on desktop and phone.
 

@@ -24,6 +24,8 @@
   --card-face: #fbfbf8; /* playing card face */
   --card-red: #c62828; /* hearts, diamonds */
   --card-black: #14181a; /* spades, clubs */
+  --card-back-a: #7a1f2b; /* face-down cards */
+  --card-back-b: #962a38;
   --success-bg: #173a29;
   --success-fg: #8fe0b4;
   --danger: #f07167;
@@ -54,6 +56,8 @@
   --card-face: #ffffff;
   --card-red: #c62828;
   --card-black: #14181a;
+  --card-back-a: #7a1f2b; /* face-down cards */
+  --card-back-b: #962a38;
   --success-bg: #dff3e7;
   --success-fg: #11512f;
   --danger: #c0352b;
@@ -134,4 +138,16 @@ h1, h2, h3, h4 {
 p a, li a {
   text-decoration: underline;
   text-underline-offset: 2px;
+}
+
+/* Cards slide in when dealt; turned off for people who prefer less motion. */
+@keyframes card-in {
+  from { opacity: 0; transform: translateY(-8px) scale(0.92); }
+  to { opacity: 1; transform: none; }
+}
+.card-in {
+  animation: card-in 220ms ease-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  .card-in { animation: none; }
 }

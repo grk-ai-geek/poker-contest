@@ -15,5 +15,11 @@ export default defineConfig({
       reuseExistingServer: true,
       timeout: 120_000,
     },
+    {
+      command: "npm run server:start",
+      url: "http://localhost:4000/health",
+      reuseExistingServer: true,
+      timeout: 60_000,
+    },
   ],
 });
