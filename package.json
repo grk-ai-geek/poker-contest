@@ -21,7 +21,8 @@
     "db:studio": "prisma studio",
     "make-admin": "tsx scripts/make-admin.ts",
     "postinstall": "prisma generate",
-    "vercel-build": "prisma migrate deploy && next build"
+    "vercel-build": "prisma migrate deploy && next build",
+    "sim": "tsx scripts/sim.ts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.10.0",

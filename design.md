@@ -303,8 +303,9 @@ type Seat = {
   bet: number;              // chips put in on the current street
   committed: number;        // chips put in this hand (all streets)
   hole: Card[] | null;
-  status: "active" | "folded" | "allin" | "sittingOut";
-  hasActed: boolean;        // acted since the last full raise
+  status: "active" | "folded" | "allin";   // sitting out is a game-server concern, not the engine's
+  hasActed: boolean;        // acted voluntarily on this street
+  actedFacing: number;      // currentBet at their last action (short all-in rule)
 };
 
 type HandState = {
@@ -315,7 +316,7 @@ type HandState = {
   toAct: number | null;     // seatNo
   currentBet: number;       // highest bet on this street
   lastFullRaise: number;    // size of the last full bet/raise (starts at bb)
-  pots: Pot[];              // computed at the end of each street
+  deadMoney: number;        // antes, added to the main pot
   events: GameEvent[];      // append-only log → HandAction rows + animations
   result?: HandResult;
 };
@@ -323,11 +324,12 @@ type HandState = {
 
 ### 5.4 API
 ```ts
-startHand(input: { seats, buttonSeat, level, handNo, deck }): HandState
-legalActions(state, seatNo): { fold, check, call?: number, minRaiseTo?: number, maxRaiseTo?: number }
-applyAction(state, seatNo, action: {type, toAmount?}): HandState   // throws IllegalAction
-viewFor(state, viewer: playerId | "spectator"): TableView         // §6.6
-nextButton(prev, seats): { buttonSeat, sbSeat, bbSeat }            // dead-button rule
+startHand({ handNo, level, positions, players, deck }): HandState
+legalActions(state, seatNo): { toCall, fold, check, call: number | null, raise: { kind, minTo, maxTo } | null } | null
+applyAction(state, seatNo, { type: fold|check|call|allin } | { type: bet|raise, toAmount }): HandState  // throws IllegalAction
+currentPots(state): Pot[]                                          // pots from finished streets, for display
+viewFor(state, viewerId | null): TableView                         // §6.6 (null = spectator)
+initialPositions(occupiedSeats, buttonSeat) / nextPositions(prev, occupiedSeats)  // dead-button rule (§5.8)
 ```
 
 ### 5.5 Betting rules
@@ -703,7 +705,7 @@ ENABLE_DEV_BOTS=1                          # ignored in production
 | Layer | Tool | What |
 |-------|------|------|
 | Engine | Vitest | Evaluator (all categories, kickers, wheel, splits), betting rules (min-raise, short all-in, heads-up), pots (side, split, odd chip, uncalled bet), dead button, `viewFor` |
-| Engine (property) | Vitest + fast-check | Chip conservation, legal-only actions, no duplicate cards — random games |
+| Engine (property) | Vitest, seeded random games | Chip conservation, legal-only actions, no duplicate cards, no card leaks in any view — after every action |
 | Simulator | `npm run sim` | 100k random hands, all invariants |
 | Tournament | Vitest | Lifecycle, registration, places (simultaneous bust-outs), `planBreak` / `planBalance` |
 | Game server | Vitest integration (real DB) | Protocol validation, card-leak check on every message, timeouts/sit-out, restart recovery, idempotency |

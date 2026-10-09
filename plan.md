@@ -48,7 +48,7 @@ M6, M7 and M8 can be built in any order after M5 (M8 only needs M4).
 - [x] Node.js 24 LTS and Git installed (already on this machine from TradingContest)
 - [x] Neon account → new project `poker` **(you)**
 - [x] GitHub repo `poker-contest` created **(you)**
-- [ ] `git init`, `.gitignore`, `.gitattributes`, first commit
+- [x] `git init`, `.gitignore`, `.gitattributes`, first commit (`97c0b97`), pushed to `grk-ai-geek/poker-contest`
 - [ ] Later (M9): Vercel and Railway/Fly.io accounts, domain for RiverKings **(you)**
 
 **Done when:** Neon connection strings are ready for `.env.local` (never committed) and the repo has its first commit.
@@ -96,24 +96,24 @@ M6, M7 and M8 can be built in any order after M5 (M8 only needs M4).
 The most important code. No database, no network: `(state, action) → (newState, events)`.
 
 **Cards & evaluation**
-- [ ] Card / deck types; Fisher–Yates shuffle with `crypto.randomInt`, plus a seeded RNG for tests
-- [ ] 7-card hand evaluator (best 5 of 7) returning rank + the 5 winning cards + a readable name ("Full house, Kings over Sevens")
-- [ ] Evaluator tests: every hand category, kickers, ties, wheel straight (A-2-3-4-5), steel wheel; checked against a known reference set
+- [x] Card / deck types; Fisher–Yates shuffle with `crypto.randomInt`, plus a seeded RNG for tests
+- [x] 7-card hand evaluator (best 5 of 7) returning rank + the 5 winning cards + a readable name ("Full house, Kings over Sevens")
+- [x] Evaluator tests: every hand category, kickers, ties, wheel straight (A-2-3-4-5), steel wheel; all 2,598,960 five-card hands match the reference category counts
 
 **Hand state machine**
-- [ ] Seats, dealer button, small/big blind, ante; heads-up blind rules (button posts SB, acts first pre-flop)
-- [ ] Betting rounds: pre-flop, flop, turn, river; turn order; round ends correctly
-- [ ] Legal actions per player: fold, check, call, bet, raise, all-in; **min-raise** rules; short all-in that does not reopen betting
-- [ ] Pots: main pot + **side pots**, split pots, odd-chip rule
-- [ ] Showdown order; uncalled bet returned; everyone-all-in runs out the board
-- [ ] Button movement and dead-button handling when players bust
-- [ ] `viewFor(state, playerId)`: the only way state leaves the engine; hides other players' hole cards and the deck
-- [ ] Hand history events (every action recorded, enough to replay)
+- [x] Seats, dealer button, small/big blind, ante; heads-up blind rules (button posts SB, acts first pre-flop)
+- [x] Betting rounds: pre-flop, flop, turn, river; turn order; round ends correctly
+- [x] Legal actions per player: fold, check, call, bet, raise, all-in; **min-raise** rules; short all-in that does not reopen betting
+- [x] Pots: main pot + **side pots**, split pots, odd-chip rule
+- [x] Showdown order; uncalled bet returned; everyone-all-in runs out the board
+- [x] Button movement and dead-button handling when players bust
+- [x] `viewFor(state, playerId)`: the only way state leaves the engine; hides other players' hole cards and the deck
+- [x] Hand history events (every action recorded, enough to replay)
 
 **Tests**
-- [ ] Unit tests for every rule above, using fixed decks
-- [ ] Property tests: chips are never created or lost; pots always add up; only legal actions are accepted
-- [ ] Simulator script `npm run sim`: thousands of random bot hands, checking all invariants
+- [x] Unit tests for every rule above, using fixed decks
+- [x] Property tests (seeded random games): chips are never created or lost; pots always add up; only legal actions are accepted; no view ever leaks a hidden card
+- [x] Simulator script `npm run sim`: thousands of random bot hands, checking all invariants (100,000 hands in ~10 s; `--views` adds leak checks)
 
 **Done when:** the simulator plays 100,000 random hands with no invariant failures, and every edge case in intent §10 has a test.
 
