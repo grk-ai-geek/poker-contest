@@ -1,0 +1,40 @@
+// Data model for the poker contest site. See design.md §4.
+// All chip amounts are whole numbers (Int). Game models arrive in M3/M5.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model User {
+  id              String    @id @default(cuid())
+  email           String    @unique
+  emailVerified   DateTime?
+  passwordHash    String? // null for Google-only users
+  displayName     String    @unique
+  avatarUrl       String?
+  role            Role      @default(USER)
+  isBot           Boolean   @default(false) // dev/test bots only; refused in production
+  chatBannedUntil DateTime?
+  createdAt       DateTime  @default(now())
+}
+
+// Email verification links (sign-up). Token is stored hashed.
+model VerificationToken {
+  id        String   @id @default(cuid())
+  email     String
+  tokenHash String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([email])
+}

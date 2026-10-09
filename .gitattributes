@@ -1,0 +1,5 @@
+# Keep LF line endings in the repo (CI runs on Linux).
+* text=auto eol=lf
+*.png binary
+*.webp binary
+*.ico binary

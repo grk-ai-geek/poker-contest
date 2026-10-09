@@ -1,0 +1,137 @@
+@import "tailwindcss";
+
+/* Theme tokens (design.md §3). Components use these names only, never brand-specific colours.
+   Two themes, switched with <html data-theme="dark|light"> (default dark).
+   Target: WCAG AA in both, text ≥ 4.5:1 on its background, input borders ≥ 3:1. */
+:root,
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --ground: #121614; /* page background */
+  --surface: #1b211e; /* cards, header, footer */
+  --surface-2: #252c28; /* hover, avatars, subtle fills */
+  --ink: #ebefec; /* main text */
+  --ink-2: #c3cbc6; /* secondary text */
+  --muted: #95a09a; /* captions, labels */
+  --line: #313a35; /* borders */
+  --line-soft: #252c28; /* row dividers */
+  --field: #75807a; /* input borders */
+  --accent: #e9c46a; /* links, highlights, active nav */
+  --accent-strong: #e9c46a; /* primary buttons */
+  --accent-soft: #34301f; /* highlighted rows/cards, notices */
+  --on-accent: #14181a; /* text on accent buttons */
+  --felt: #0f5132; /* poker table surface */
+  --felt-edge: #3b2a1a; /* table rail */
+  --card-face: #fbfbf8; /* playing card face */
+  --card-red: #c62828; /* hearts, diamonds */
+  --card-black: #14181a; /* spades, clubs */
+  --success-bg: #173a29;
+  --success-fg: #8fe0b4;
+  --danger: #f07167;
+  --danger-bg: #45231f;
+  --danger-fg: #f6a39b;
+  --info-bg: #1f2f50;
+  --info-fg: #a8c4ff;
+  --warn: #e8a33a;
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+  --ground: #f2f4f2;
+  --surface: #ffffff;
+  --surface-2: #e8ece9;
+  --ink: #14181a;
+  --ink-2: #3a423e;
+  --muted: #5a645f;
+  --line: #d4dbd6;
+  --line-soft: #e8ece9;
+  --field: #808a85;
+  --accent: #7a5a06; /* darker gold so links stay readable on white */
+  --accent-strong: #e9c46a;
+  --accent-soft: #fbf1d6;
+  --on-accent: #14181a;
+  --felt: #17704a;
+  --felt-edge: #5a3f24;
+  --card-face: #ffffff;
+  --card-red: #c62828;
+  --card-black: #14181a;
+  --success-bg: #dff3e7;
+  --success-fg: #11512f;
+  --danger: #c0352b;
+  --danger-bg: #fbe3e0;
+  --danger-fg: #8a2018;
+  --info-bg: #e3ecfb;
+  --info-fg: #1b3f8f;
+  --warn: #b26b00;
+}
+
+@theme inline {
+  --color-ground: var(--ground);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-line-soft: var(--line-soft);
+  --color-field: var(--field);
+  --color-accent: var(--accent);
+  --color-accent-strong: var(--accent-strong);
+  --color-accent-soft: var(--accent-soft);
+  --color-on-accent: var(--on-accent);
+  --color-felt: var(--felt);
+  --color-felt-edge: var(--felt-edge);
+  --color-card-face: var(--card-face);
+  --color-card-red: var(--card-red);
+  --color-card-black: var(--card-black);
+  --color-success-bg: var(--success-bg);
+  --color-success-fg: var(--success-fg);
+  --color-danger: var(--danger);
+  --color-danger-bg: var(--danger-bg);
+  --color-danger-fg: var(--danger-fg);
+  --color-info-bg: var(--info-bg);
+  --color-info-fg: var(--info-fg);
+  --color-warn: var(--warn);
+  --font-sans: var(--font-body-face);
+  --font-heading: var(--font-heading-face);
+  /* Numbers use the body face with aligned (tabular) digits. */
+  --font-mono: var(--font-body-face);
+}
+
+body {
+  background: var(--color-ground);
+  color: var(--color-ink);
+}
+
+a:hover {
+  color: var(--color-accent);
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-heading-face), Arial, sans-serif;
+  letter-spacing: -0.01em;
+}
+
+/* Content column: centred and wide, with fluid side gutters (16px on phones → 48px on large screens). */
+.page-x {
+  width: 100%;
+  max-width: 1440px;
+  margin-inline: auto;
+  padding-inline: clamp(16px, 4vw, 48px);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* Chip counts and timers line up in columns without switching typeface. */
+.font-mono {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.005em;
+}
+
+/* Links inside sentences need more than colour to stand out (WCAG 1.4.1). */
+p a, li a {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
