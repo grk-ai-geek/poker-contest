@@ -14,6 +14,8 @@ import type { ClientTableView, PreAction } from "@/lib/protocol/messages";
 export type SeatedPlayer = {
   playerId: string;
   name: string;
+  /** Profile picture URL (null: initials are shown). */
+  avatarUrl?: string | null;
   seatNo: number;
   stack: number;
   isBot: boolean;
@@ -145,7 +147,7 @@ export class TableRuntime extends EventEmitter<{ change: []; bust: [SeatedPlayer
   }
 
   /** Seats a player in a free (random) seat; they join from the next hand. */
-  seat(player: { playerId: string; name: string; stack: number; isBot: boolean; seatNo?: number }): Promise<SeatedPlayer | TableError> {
+  seat(player: { playerId: string; name: string; avatarUrl?: string | null; stack: number; isBot: boolean; seatNo?: number }): Promise<SeatedPlayer | TableError> {
     return this.run(() => {
       if (this.closed) return { code: "table_closed", message: "This table is closed." };
       const existing = this.seatOf(player.playerId);
@@ -156,6 +158,7 @@ export class TableRuntime extends EventEmitter<{ change: []; bust: [SeatedPlayer
       const seated: SeatedPlayer = {
         playerId: player.playerId,
         name: player.name,
+        avatarUrl: player.avatarUrl ?? null,
         seatNo,
         stack: player.stack,
         isBot: player.isBot,
@@ -270,7 +273,7 @@ export class TableRuntime extends EventEmitter<{ change: []; bust: [SeatedPlayer
       level: running ? hand.level : this.config.level(),
       players: this.seatedPlayers().map((p) => {
         const inHand = running ? hand.seats.find((x) => x.playerId === p.playerId) : undefined;
-        return { seatNo: p.seatNo, playerId: p.playerId, name: p.name, stack: inHand ? inHand.stack : p.stack, isBot: p.isBot, sittingOut: p.sittingOut };
+        return { seatNo: p.seatNo, playerId: p.playerId, name: p.name, avatarUrl: p.avatarUrl ?? null, stack: inHand ? inHand.stack : p.stack, isBot: p.isBot, sittingOut: p.sittingOut };
       }),
       hand: hand ? engineView(hand, viewerId) : null,
       turn: this.turn ? { seatNo: this.turn.seatNo, deadline: this.turn.deadline, timeBank: this.turn.timeBank } : null,
@@ -476,7 +479,7 @@ export class TableRuntime extends EventEmitter<{ change: []; bust: [SeatedPlayer
       lastPositions: this.lastPositions,
       players: this.seatedPlayers()
         .filter((p) => p.stack > 0)
-        .map(({ playerId, name, seatNo, stack, isBot, sittingOut, timeBankMs }) => ({ playerId, name, seatNo, stack, isBot, sittingOut, timeBankMs })),
+        .map(({ playerId, name, avatarUrl, seatNo, stack, isBot, sittingOut, timeBankMs }) => ({ playerId, name, avatarUrl, seatNo, stack, isBot, sittingOut, timeBankMs })),
     };
     try {
       await this.store.saveSnapshot(this.id, snapshot);

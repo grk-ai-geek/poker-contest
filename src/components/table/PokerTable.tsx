@@ -4,8 +4,10 @@ import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { chips, eventText } from "@/lib/client/format";
 import { useNow, useTable } from "@/lib/client/useTable";
+import { brand } from "@/config/brand";
 import type { ClientTableView } from "@/lib/protocol/messages";
 import { PreActions, YourTurn } from "./ActionBar";
+import { ChipStack } from "./Chips";
 import { CardSlot, PlayingCard } from "./PlayingCard";
 import { Seat } from "./Seat";
 
@@ -159,16 +161,34 @@ function Felt({ view, now }: { view: ClientTableView; now: number }) {
   }, [hand]);
 
   const seats = Array.from({ length: view.maxSeats }, (_, i) => i + 1);
-  const potText = hand ? (hand.ended ? null : hand.pots.length ? hand.pots.map((p, i) => `${i === 0 ? "Pot" : "Side pot"} ${chips(p)}`).join(" · ") : null) : null;
+  const pots = hand && !hand.ended ? hand.pots : [];
 
   return (
-    <div className="relative mx-auto aspect-[3/4] w-full max-w-[560px] sm:aspect-[16/10] sm:max-w-none">
-      {/* Rail and felt */}
-      <div className="absolute inset-[9%_4%] rounded-[50%] border-[10px] border-felt-edge bg-felt shadow-[inset_0_0_60px_rgba(0,0,0,0.45)] sm:inset-[11%_7%] sm:border-[14px]" />
+    <div className="relative mx-auto my-4 aspect-[3/4] w-full max-w-[560px] sm:my-6 sm:aspect-[16/10] sm:max-w-none">
+      {/* Padded rail, wood trim and felt with a betting line and the logo */}
+      <div className="table-rail absolute inset-[9%_4%] rounded-[999px] sm:inset-[11%_7%]">
+        <div className="table-felt absolute inset-[12px] overflow-hidden rounded-[999px] sm:inset-[20px]">
+          <div className="absolute inset-[7%_9%] rounded-[999px] border-2 border-white/10 sm:inset-[10%_7%]" />
+          <div className="absolute inset-x-0 top-[16%] flex items-center justify-center gap-2 opacity-[0.16] sm:top-[17%]">
+            {/* eslint-disable-next-line @next/next/no-img-element -- small decorative SVG */}
+            <img src={brand.logo.mark} alt="" className="h-7 w-7 grayscale invert sm:h-10 sm:w-10" />
+            <span className="font-[family-name:var(--font-heading-face)] text-[18px] font-semibold uppercase tracking-[0.2em] text-white sm:text-[26px]">{brand.shortName}</span>
+          </div>
+        </div>
+      </div>
 
       {/* Board, pot and result */}
       <div className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-2">
-        {potText ? <div className="rounded-full bg-black/45 px-3 py-1 font-mono text-[13px] text-white sm:text-[15px]">{potText}</div> : null}
+        {pots.length ? (
+          <div className="flex items-end gap-3" aria-label={pots.map((p, i) => `${i === 0 ? "Pot" : "Side pot"} ${chips(p)}`).join(", ")}>
+            {pots.map((p, i) => (
+              <div key={i} className="flex flex-col items-center">
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-white/70">{i === 0 ? "Pot" : "Side pot"}</span>
+                <ChipStack amount={p} />
+              </div>
+            ))}
+          </div>
+        ) : null}
         <div className="flex gap-1 sm:gap-1.5" aria-label="Board">
           {[0, 1, 2, 3, 4].map((i) =>
             hand?.board[i] ? <PlayingCard key={hand.board[i]} card={hand.board[i]} size="md" highlight={highlight.has(hand.board[i])} /> : <CardSlot key={i} size="md" />,
@@ -198,23 +218,12 @@ function Felt({ view, now }: { view: ClientTableView; now: number }) {
             .map((s) => {
               const p = around(s.seatNo, view.maxSeats, bottom, 27, 25);
               return (
-                <div key={`bet${s.seatNo}`} style={{ left: `${p.x}%`, top: `${p.y}%` }} className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full bg-black/55 px-2 py-0.5 font-mono text-[12px] font-semibold text-white transition-all sm:text-[14px]">
-                  {chips(s.bet)}
+                <div key={`bet${s.seatNo}`} style={{ left: `${p.x}%`, top: `${p.y}%` }} className="absolute -translate-x-1/2 -translate-y-1/2 transition-all">
+                  <ChipStack amount={s.bet} />
                 </div>
               );
             })
         : null}
-      {hand ? (
-        (() => {
-          const p = around(hand.positions.buttonSeat, view.maxSeats, bottom, 31, 30, 14);
-          return (
-            <div style={{ left: `${p.x}%`, top: `${p.y}%` }} aria-label="Dealer button" className="absolute flex h-6 w-6 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-black/30 bg-white text-[12px] font-bold text-black shadow">
-              D
-            </div>
-          );
-        })()
-      ) : null}
-
       {seats.map((seatNo) => {
         const p = around(seatNo, view.maxSeats, bottom, 44, 42);
         const player = view.players.find((x) => x.seatNo === seatNo);
@@ -229,6 +238,7 @@ function Felt({ view, now }: { view: ClientTableView; now: number }) {
             isYou={view.you?.seatNo === seatNo}
             highlight={highlight}
             won={winners.get(seatNo) ?? 0}
+            dealer={hand?.positions.buttonSeat === seatNo}
             turn={view.turn?.seatNo === seatNo ? view.turn : null}
             now={now}
             x={p.x}
@@ -298,7 +308,13 @@ function Controls({ view, signedIn, t }: { view: ClientTableView; signedIn: bool
 
 function HandLog({ view }: { view: ClientTableView }) {
   const hand = view.hand;
-  const nameOf = (seatNo: number) => view.players.find((p) => p.seatNo === seatNo)?.name ?? hand?.seats.find((s) => s.seatNo === seatNo)?.playerId ?? `Seat ${seatNo}`;
+  // Remember names, so a player who busts or leaves mid-hand keeps their name in the log.
+  const [names, setNames] = useState<Record<string, string>>({});
+  if (view.players.some((p) => names[p.playerId] !== p.name)) setNames({ ...names, ...Object.fromEntries(view.players.map((p) => [p.playerId, p.name])) });
+  const nameOf = (seatNo: number) => {
+    const playerId = hand?.seats.find((s) => s.seatNo === seatNo)?.playerId;
+    return (playerId && names[playerId]) || (view.players.find((p) => p.seatNo === seatNo)?.name ?? `Seat ${seatNo}`);
+  };
   const lines = (hand?.events ?? []).map((e) => eventText(e, nameOf)).filter((l): l is string => Boolean(l));
   const listRef = useRef<HTMLOListElement>(null);
   useEffect(() => {

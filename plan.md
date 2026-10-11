@@ -148,6 +148,8 @@ The most important code. No database, no network: `(state, action) → (newState
 - [x] Card deal-in animation (off with reduced motion) and a "your turn" chime, with a sound toggle on the table
 - [x] Mobile layout (portrait, seats around the edge, action bar at the bottom)
 - [x] e2e test: take a seat on a practice table and play 3 hands against bots, no browser console errors; admin "Start practice table" button
+- [x] Review feedback: more realistic table (padded rail, wood trim, felt texture, chip stacks, card faces, round avatar seats with timer ring)
+- [x] Review feedback: profile picture upload on `/settings` (cropped in the browser, stored in `UserAvatar`, shown in the header and at the table)
 
 **Done when:** you can play hands in the browser against dev bots on desktop and phone.
 

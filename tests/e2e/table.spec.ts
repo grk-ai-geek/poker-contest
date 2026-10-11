@@ -40,7 +40,9 @@ async function playHands(page: Page, count: number) {
   while (finished.size < count && Date.now() < deadline) {
     const check = page.getByRole("button", { name: "Check", exact: true });
     const call = page.getByRole("button", { name: /^Call [\d,]+$/ });
-    if (await check.isVisible()) await check.click().catch(() => {});
+    const sit = page.getByRole("button", { name: "Take a seat" });
+    if (await sit.isVisible()) await sit.click().catch(() => {}); // busted by a bot's shove: sit back down
+    else if (await check.isVisible()) await check.click().catch(() => {});
     else if (await call.isVisible()) await call.click().catch(() => {});
     const log = (await page.locator("details", { hasText: "Hand log" }).textContent({ timeout: 10_000 })) ?? "";
     const hand = log.match(/Hand log · #(\d+)/)?.[1];
@@ -75,7 +77,9 @@ test("practice table: take a seat and play hands against bots", async ({ page })
   await page.waitForTimeout(500);
   await page.screenshot({ path: "test-results/table-mobile.png", fullPage: true });
 
-  await page.getByRole("button", { name: "Leave seat" }).click();
+  // Calling every bet can bust us (a bot shoves); busted players are unseated automatically.
+  const leave = page.getByRole("button", { name: "Leave seat" });
+  if (await leave.isVisible()) await leave.click();
   await expect(page.getByRole("button", { name: "Take a seat" })).toBeVisible({ timeout: 30_000 });
   expect(consoleErrors).toEqual([]);
 });

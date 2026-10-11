@@ -35,10 +35,10 @@ export async function Header() {
         <div className="ml-auto flex flex-wrap items-center justify-end gap-x-2 gap-y-2 text-[15px] sm:gap-x-4 sm:text-[17px]">
           {user ? (
             <>
-              <span className="flex items-center gap-2.5" title={user.displayName}>
+              <Link href="/settings" className="flex items-center gap-2.5 rounded-full" title={`${user.displayName} · Settings`}>
                 <Avatar name={user.displayName} src={user.avatarUrl} />
-                <span className="sr-only">{user.displayName}</span>
-              </span>
+                <span className="sr-only">{user.displayName}, settings</span>
+              </Link>
               <form action={logoutAction}>
                 <button type="submit" className="min-h-11 px-2 font-[family-name:var(--font-heading-face)] font-medium text-ink hover:text-accent">Log out</button>
               </form>

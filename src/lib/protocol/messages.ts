@@ -31,6 +31,7 @@ export type TablePlayerView = {
   seatNo: number;
   playerId: string;
   name: string;
+  avatarUrl: string | null;
   /** Chips behind right now (during a hand: not counting chips already bet). */
   stack: number;
   isBot: boolean;

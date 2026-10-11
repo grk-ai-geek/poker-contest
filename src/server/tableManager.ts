@@ -103,8 +103,11 @@ export class TableManager extends EventEmitter<{ change: [tableId: string] }> {
     const runtime = this.tables.get(tableId);
     if (!runtime) return { code: "not_found", message: "Table not found." };
     if (!runtime.config.practice) return { code: "not_practice", message: "Seats at tournament tables are assigned by the tournament." };
-    const row = await this.db.table.findUnique({ where: { id: tableId }, select: { startingStack: true } });
-    const result = await runtime.seat({ playerId: who.userId, name: who.name, stack: row?.startingStack ?? 10_000, isBot: false });
+    const [row, user] = await Promise.all([
+      this.db.table.findUnique({ where: { id: tableId }, select: { startingStack: true } }),
+      this.db.user.findUnique({ where: { id: who.userId }, select: { avatarUrl: true } }),
+    ]);
+    const result = await runtime.seat({ playerId: who.userId, name: who.name, avatarUrl: user?.avatarUrl, stack: row?.startingStack ?? 10_000, isBot: false });
     return "code" in result ? result : null;
   }
 

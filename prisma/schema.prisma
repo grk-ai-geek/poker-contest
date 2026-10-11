@@ -27,6 +27,16 @@ model User {
   chatBannedUntil DateTime?
   createdAt       DateTime     @default(now())
   hands           HandPlayer[]
+  avatar          UserAvatar?
+}
+
+// Uploaded profile picture (small, resized in the browser). Served by /api/avatar/[userId].
+model UserAvatar {
+  userId      String   @id
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  data        Bytes
+  contentType String
+  updatedAt   DateTime @updatedAt
 }
 
 // Email verification links (sign-up). Token is stored hashed.
